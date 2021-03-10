@@ -1,21 +1,24 @@
 let treeTrunk;
-let bark;
+
+let barkImg;
 let noiseImage;
+let forest = [];
+let barks = [];
 
 class Tree {
   constructor() {
-    this.startPoint = windowWidth / 2;
-    this.nearness = 30;
+    this.startPoint = random(0, windowWidth);
+    this.nearness = random(0, 100);
     this.height = windowHeight - this.nearness;
-    this.trunkWidth = 40;
-    this.bottomFlareLeft = 10;
-    this.midFlareLeft = 7;
-    this.bottomFlareRight = 10;
-    this.midFlareRight = 7;
-    this.bottomFlareHeightLeft = this.height / 4;
-    this.midFlareHeight = this.height / 3;
-    this.bottomFlareHeightRight = this.height / 4;
-    this.midFlareHeightRight = this.height / 3;
+    this.trunkWidth = random(30, 60);
+    this.bottomFlareLeft = random(5, 25);
+    this.midFlareLeft = random(5, 25);
+    this.bottomFlareRight = random(5, 25);
+    this.midFlareRight = random(5, 25);
+    this.bottomFlareHeightLeft = this.height / random(2, 5);
+    this.midFlareHeight = this.height / random(2, 5);
+    this.bottomFlareHeightRight = this.height / random(2, 5);
+    this.midFlareHeightRight = this.height / random(2, 5);
     this.rootCurveX =
       this.startPoint +
       this.midFlareLeft +
@@ -23,27 +26,23 @@ class Tree {
       this.trunkWidth / 2;
 
     this.RootCurveY = windowHeight - this.nearness / 2;
+    this.treeTrunk = createGraphics(windowWidth, windowHeight);
   }
 
-  display() {
-    treeTrunk = createGraphics(100, windowHeight);
-
-    treeTrunk.noStroke;
-    treeTrunk.fill(0);
-
-    treeTrunk.beginShape();
+  drawTree() {
+    this.treeTrunk.beginShape();
 
     // bottom root left
-    treeTrunk.vertex(this.startPoint, windowHeight - this.nearness);
+    this.treeTrunk.vertex(this.startPoint, windowHeight - this.nearness);
 
     // main trunk left 1
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint + this.bottomFlareLeft,
       windowHeight - this.nearness - this.bottomFlareHeightLeft
     );
 
     // main trunk left 2
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint + this.bottomFlareLeft + this.midFlareLeft,
       windowHeight -
         this.nearness -
@@ -52,13 +51,13 @@ class Tree {
     );
 
     // trunk top left
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint + this.bottomFlareLeft + this.midFlareLeft,
       0
     );
 
     // trunk top right
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint +
         this.bottomFlareLeft +
         this.midFlareLeft +
@@ -67,7 +66,7 @@ class Tree {
     );
 
     // main trunk right 2
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint +
         this.bottomFlareLeft +
         this.midFlareLeft +
@@ -79,7 +78,7 @@ class Tree {
     );
 
     // main trunk right 1
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint +
         this.bottomFlareLeft +
         this.midFlareLeft +
@@ -89,7 +88,7 @@ class Tree {
     );
 
     // bottom root right
-    treeTrunk.vertex(
+    this.treeTrunk.vertex(
       this.startPoint +
         this.bottomFlareLeft +
         this.midFlareLeft +
@@ -100,26 +99,39 @@ class Tree {
     );
 
     // trunk root curve
-    treeTrunk.quadraticVertex(
+    this.treeTrunk.quadraticVertex(
       this.rootCurveX,
       this.RootCurveY,
       this.startPoint,
       windowHeight - this.nearness
     );
-    endShape();
-    noiseImage = loadImage("../images/noise.jpg");
+    this.treeTrunk.endShape(CLOSE);
+  }
+}
 
-    // noiseImage.mask(treeTrunk);
+function preload() {
+  for (i = 0; i < 5; i++) {
+    barks.push(loadImage('../images/noise.jpg'));
+  }
+}
 
-    return image(noiseImage, 100, windowWidth);
+function createTrees() {
+  for (i = 0; i < 5; i++) {
+    forest.push(new Tree());
   }
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  tree = createGraphics(100, windowHeight);
-  background(255);
-  tree = new Tree();
-  tree.display();
+  background(50, 60, 60);
+  createTrees();
+  forest.forEach((tree, index) => {
+    tree.drawTree();
+    barks[index].mask(tree.treeTrunk);
+    image(barks[index], 0, 0, windowWidth, windowHeight);
+  });
 }
+
 function draw() {}
+
+// next steps are to make a bark createGraphics  object inside each tree, then we won't have to preload the image we would just do tree.bark.mask(tree.treeTrunk)
