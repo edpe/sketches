@@ -4,12 +4,13 @@ let barkImg;
 let noiseImage;
 let forest = [];
 let barks = [];
+let positions = [];
 
 class Tree {
   constructor() {
     this.startPoint = 0;
     this.baseCurve = random(20, 60);
-    this.trunkWidth = random(40, 60);
+    this.trunkWidth = random(40, 100);
 
     this.bottomFlareLeft = random(5, 15);
     this.bottomFlareRight = random(5, 15);
@@ -148,23 +149,50 @@ class Tree {
 }
 
 function createTrees() {
-  for (i = 0; i < 15; i++) {
+  for (i = 0; i < 10; i++) {
     forest.push(new Tree());
   }
 }
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  background(50, 60, 60);
-  createTrees();
+function drawTrees(distance) {
   forest.forEach((tree, index) => {
     tree.drawTrunk();
     tree.drawBark();
     barks.splice(index, 0, tree.bark.get());
     barks[index].mask(tree.treeTrunk);
 
-    image(barks[index], random(0, windowWidth), random(0, -80));
+    let height = map(distance, 0, 100, 0, -500);
+
+    image(
+      barks[index],
+      positions[index] + random(-120, 120),
+      random(height, height + random(0, 80))
+    );
   });
+}
+
+function generatePositions() {
+  for (i = 1; i < 10; i++) {
+    positions.push((windowWidth / 10) * i);
+  }
+  console.log(positions);
+}
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  background(50, 60, 60);
+  generatePositions();
+  createTrees();
+  drawTrees(100);
+  background(255, 255, 255, 20);
+  drawTrees(80);
+  background(255, 255, 255, 20);
+  drawTrees(60);
+  background(255, 255, 255, 20);
+  drawTrees(40);
+  background(255, 255, 255, 20);
+  drawTrees(20);
+  background(255, 255, 255, 20);
 }
 
 function draw() {}
