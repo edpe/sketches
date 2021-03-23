@@ -8,7 +8,9 @@ let positions = [];
 
 class Tree {
   constructor() {
-    this.startPoint = 0;
+    this.maxBranchLength = 60;
+
+    this.startPoint = this.maxBranchLength;
     this.baseCurve = random(20, 60);
     this.trunkWidth = random(40, 100);
 
@@ -23,9 +25,11 @@ class Tree {
         this.bottomFlareLeft +
         this.bottomFlareRight +
         this.midFlareLeft +
-        this.midFlareRight,
+        this.midFlareRight +
+        this.maxBranchLength * 2,
       windowHeight
     );
+
     this.height = this.treeTrunk.height - this.baseCurve;
 
     this.bottomFlareHeightLeft = this.height / random(7, 8);
@@ -34,14 +38,7 @@ class Tree {
     this.midFlareHeightLeft = this.height / random(4, 6);
     this.midFlareHeightRight = this.height / random(4, 6);
 
-    this.baseCurveX =
-      (this.startPoint +
-        this.midFlareLeft +
-        this.bottomFlareLeft +
-        this.midFlareRight +
-        this.bottomFlareRight +
-        this.trunkWidth) /
-      2;
+    this.baseCurveX = this.treeTrunk.width / 2;
 
     this.baseCurveY = this.height + this.baseCurve;
 
@@ -50,7 +47,8 @@ class Tree {
         this.bottomFlareLeft +
         this.bottomFlareRight +
         this.midFlareRight +
-        this.midFlareLeft,
+        this.midFlareLeft +
+        this.maxBranchLength,
       windowHeight
     );
   }
@@ -60,7 +58,12 @@ class Tree {
     let green = random(20, 40);
     let blue = random(20, 30);
     this.bark.fill(red, green, blue);
-    this.bark.rect(0, 0, this.bark.width, windowHeight);
+    this.bark.rect(
+      0,
+      0,
+      this.bark.width + this.maxBranchLength * 2,
+      windowHeight
+    );
     for (i = 0; i < 800; i++) {
       this.bark.noStroke();
       this.bark.fill(random(0, 40), random(60, 80), random(0, 20));
@@ -71,7 +74,7 @@ class Tree {
         random(0, 7)
       );
     }
-    this.bark.filter(BLUR, 6);
+    this.bark.filter(BLUR, 4);
   }
 
   drawTrunk() {
@@ -146,6 +149,15 @@ class Tree {
     );
     this.treeTrunk.endShape(CLOSE);
   }
+
+  drawBranches() {
+    this.treeTrunk.rect(
+      0,
+      200,
+      this.maxBranchLength + this.midFlareLeft + this.bottomFlareLeft,
+      8
+    );
+  }
 }
 
 function createTrees() {
@@ -154,20 +166,24 @@ function createTrees() {
   }
 }
 
-function drawTrees(distance) {
+function drawTrees(distance, density) {
   forest.forEach((tree, index) => {
     tree.drawTrunk();
     tree.drawBark();
+    tree.drawBranches();
     barks.splice(index, 0, tree.bark.get());
     barks[index].mask(tree.treeTrunk);
 
     let height = map(distance, 0, 100, 0, -500);
-
-    image(
-      barks[index],
-      positions[index] + random(-120, 120),
-      random(height, height + random(0, 80))
-    );
+    let randomNumber = random(0, 10);
+    if (randomNumber < density) {
+      image(
+        barks[index],
+        // positions[index] + random(-120, 120),
+        random(0, windowWidth),
+        random(height, height + random(0, 80))
+      );
+    }
   });
 }
 
@@ -175,7 +191,6 @@ function generatePositions() {
   for (i = 1; i < 10; i++) {
     positions.push((windowWidth / 10) * i);
   }
-  console.log(positions);
 }
 
 function setup() {
@@ -183,18 +198,10 @@ function setup() {
   background(50, 60, 60);
   generatePositions();
   createTrees();
-  drawTrees(100);
-  background(255, 255, 255, 20);
-  drawTrees(80);
-  background(255, 255, 255, 20);
-  drawTrees(60);
-  background(255, 255, 255, 20);
-  drawTrees(40);
-  background(255, 255, 255, 20);
-  drawTrees(20);
+  background(255, 255, 255, 80);
+
+  drawTrees(30, 2);
   background(255, 255, 255, 20);
 }
 
 function draw() {}
-
-// why are some trees lower than others (and why do they get cut off) - must be that tree trunk is being drawn lower for some
