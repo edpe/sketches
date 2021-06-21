@@ -1,53 +1,114 @@
-let xPos;
-let yPos;
 
-let yChange = -1; // begins life travelling up
-let xChange = 0; // begins life travelling straight up
+let traces = []
 
-let randNum;
 
-function setup() {
-  createCanvas(500, 500);
-  background(220);
-  xPos = width / 2;
-  yPos = height / 2;
-}
 
-// need a walker class
-// set initial direction on the class by setting xChange and yChange
+class Tracer {
+  constructor(xPos, yPos, xChange, yChange, type, changeProbability) {
+    this.xChange = xChange;
+    this.yChange = yChange;
+    this.type = type;
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.initialXPos = xPos;
+    this.initialYPos = yPos;
+    this.changeProbability = changeProbability;
+    this.changeRouteCounter = 0;
+  }
 
-function changeDirection(number, changeProbability, direction) {
-  if (number < changeProbability) {
-    switch (direction) {
-      case "upRight":
-        xChange === 1 ? (xChange = 0) : (xChange = 1);
-        yChange = -1;
-        break;
-      case "upLeft":
-        xChange === -1 ? (xChange = 0) : (xChange = -1);
-        yChange = -1;
-        break;
+  changeDirection() {
+      if (frameCount % 4 === 0) {
+        let randNum = Math.floor(random(100));
+        if (randNum < this.changeProbability) {
+          this.changeRouteCounter++
+          switch (this.type) {
+            case "up":
+              this.xChange === 1 ? (this.xChange = 0) : (this.xChange = 1);
+              break;
+
+            case "upRight":
+              this.xChange === 1 ? (this.xChange = 0) : (this.xChange = 1);
+              break;
+        
+            case "right":
+              this.yChange === 1 ? (this.yChange = 0) : (this.yChange = 1);
+              break;
+          
+            case "downRight":
+              this.xChange === 1 ? (this.xChange = 0) : (this.xChange = 1);
+              break;
+          
+            case "down":
+              this.xChange === 1 ? (this.xChange = 0) : (this.xChange = 1);
+              break;
+          
+            case "downLeft":
+              this.xChange === -1 ? (this.xChange = 0) : (this.xChange = -1);
+              break;
+          
+            case "left":
+              this.yChange === 0 ? (this.yChange = -1) : (this.yChange = 0);
+              break;
+          
+            case "upLeft":
+              this.xChange === -1 ? (this.xChange = 0) : (this.xChange = -1);
+              break;
+          }
+        }
+      
     }
+  }
+
+  updatePosition() {
+    if (this.changeRouteCounter < 3) {
+      this.xPos = this.xPos + this.xChange;
+      this.yPos = this.yPos + this.yChange;
+    }
+  }
+
+  displayTrace() {
+    noStroke();
+    fill(255);
+    ellipse(this.xPos, this.yPos, 4, 4);
+    ellipse(this.initialXPos, this.initialYPos, 8, 8);
+    if (this.changeRouteCounter >= 3) {
+    ellipse(this.xPos, this.yPos, 8, 8);
+
+    }
+
   }
 }
 
-function updatePosition() {
-  xPos = xPos + xChange;
-  yPos = yPos + yChange;
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  background(220);
+  let traceTypes =
+  [
+    { xPos: windowWidth / 2, yPos: windowHeight / 2, xChange: 0, yChange: -1, type: "up", changeProbability: 5 },
+    { xPos: windowWidth / 2 + 30, yPos: windowHeight / 2, xChange: 1, yChange: -1, type: "upRight", changeProbability: 5 },
+    { xPos: windowWidth / 2 + 30, yPos: windowHeight / 2 + 30, xChange: 1, yChange: 0, type: "right", changeProbability: 5 },
+    { xPos: windowWidth / 2 + 30, yPos: windowHeight / 2 + 60, xChange: 1, yChange: 1, type: "downRight", changeProbability: 5 },
+    { xPos: windowWidth / 2, yPos: windowHeight / 2 + 60, xChange: 0, yChange: 1, type: "down", changeProbability: 5 },
+    { xPos: windowWidth / 2 - 30, yPos: windowHeight / 2 + 60, xChange: -1, yChange: 1, type: "downLeft", changeProbability: 5 },
+      {
+        xPos: windowWidth / 2 - 30, yPos: windowHeight / 2 +
+          30, xChange: -1, yChange: 0, type: "left", changeProbability: 5
+      },
+    { xPos: windowWidth / 2 -30 , yPos: windowHeight / 2, xChange: -1, yChange: -1, type: "upLeft", changeProbability: 5 },
+  ]
+   traces = traceTypes.map(trace => 
+    new Tracer(trace.xPos, trace.yPos, trace.xChange, trace.yChange, trace.type, trace.changeProbability)
+   )
 }
 
 function draw() {
-  noStroke();
-  fill(255);
-  ellipse(xPos, yPos, 4, 4);
-
-  if (frameCount % 4 === 0) {
-    randNum = Math.floor(random(100));
-    changeDirection(randNum, 3, "upLeft");
-  }
-
-  updatePosition();
+  traces.forEach((trace) => {
+    trace.displayTrace();
+      trace.changeDirection();
+      trace.updatePosition();
+    
+    }
+  )
 }
 
-// set initial direction using function -  up/down/left/right/diagonalLeft/diagonalRight
-// function chooses switch statement based on direction argument
+
