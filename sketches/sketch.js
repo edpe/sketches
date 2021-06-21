@@ -69,10 +69,11 @@ class Tracer {
   displayTrace() {
     noStroke();
     fill(255);
-    ellipse(this.xPos, this.yPos, 4, 4);
-    ellipse(this.initialXPos, this.initialYPos, 8, 8);
+    ellipseMode(RADIUS);
+    ellipse(this.xPos, this.yPos, 2, 2);
+    ellipse(this.initialXPos, this.initialYPos, 4, 4);
     if (this.changeRouteCounter >= 3) {
-    ellipse(this.xPos, this.yPos, 8, 8);
+    ellipse(this.xPos, this.yPos, 4, 4);
 
     }
 
